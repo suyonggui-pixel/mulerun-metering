@@ -1,0 +1,12 @@
+node_modules/
+.wrangler/
+.vscode/
+dist/
+worker/
+coverage/
+.DS_Store
+*.log
+
+# 如果你使用了 .dev.vars 或 .env，务必忽略
+.dev.vars
+.env

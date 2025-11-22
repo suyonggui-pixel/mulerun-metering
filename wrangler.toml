@@ -1,0 +1,32 @@
+name = "mulerun-metering"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# 绑定 D1 数据库
+[[d1_databases]]
+binding = "DB"
+database_name = "mulerun-metering"
+database_id = "eb0e95f8-6611-4728-becb-3e9b2c9baf6a" # 粘贴刚才生成的 ID
+
+# 环境变量
+[vars]
+# 目标 Mulerun 的基础地址
+MULERUN_TARGET_URL = "https://mulerun-metering.suyonggui.workers.dev/" 
+# 每次会话扣除的金额/积分
+SESSION_COST = "10"
+# HMAC 签名密钥 (生产环境建议用 wrangler secret put 设置)
+HMAC_SECRET = "ak_eomzxP5rQtawKGYKcChfzwAAAZpNkIXluUcFKf9USCqPqhh2y2TZnNMMfSVb1EtllTZAcPoWI00NoiyWA9LDyRexbOhJzAOT" #Agent_Key
+
+MULERUN_METERING_URL = "https://api.mulerun.com/sessions/metering"
+MULERUN_API_TOKEN = "ak_eomzxP5rQtawKGYKcChfzwAAAZpNkIXluUcFKf9USCqPqhh2y2TZnNMMfSVb1EtllTZAcPoWI00NoiyWA9LDyRexbOhJzAOT" # 生产环境请用 wrangler secret put
+
+
+#mulerun-metering/
+#├── wrangler.toml          # 配置文件 (环境变量、数据库绑定)
+#├── schema.sql             # 数据库结构 (D1)
+#├── package.json           # 依赖定义
+#└── src/
+#    ├── index.ts           # 【入口】主控制器，负责串联流程
+#    ├── auth.ts            # 【鉴权模块】负责 HMAC 签名验证
+#    ├── metering.ts        # 【计费模块】负责 D1 数据库扣费、防重放
+#    └── ui.ts              # 【前端模块】Mockup Studio 界面 + Iframe 检测逻辑
