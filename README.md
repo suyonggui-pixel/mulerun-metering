@@ -40,19 +40,21 @@
 git clone https://github.com/suyonggui-pixel/mulerun-metering.git
 cd mulerun-metering
 npm install
-
+```
 ### 第二步：登录 Cloudflare
 在终端运行以下命令，浏览器会弹出授权页面：
 code
-Bash
+```Bash
 npx wrangler login
-
+```
 ### 第三步：配置安全密钥 (Secrets)
 重要：不要将密钥明文写在代码中。请使用以下命令将它们加密上传到 Cloudflare：
 上传 HMAC 签名密钥 (用于验证 URL 合法性)：
 code
-Bash
+```Bash
 npx wrangler secret put HMAC_SECRET
+```
+
 # 终端提示输入时，粘贴你的密钥 (例如: my-secure-key-2025)
 上传 MuleRun API Token (用于扣费上报)：
 code
@@ -63,10 +65,11 @@ npx wrangler secret put MULERUN_API_TOKEN
 ### 第四步：修改配置文件
 打开项目根目录下的 wrangler.toml 文件，确保内容如下：
 code
-Toml
+```Toml
 name = "mulerun-metering"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
+```
 
 # 如果你不需要 D1 数据库，可以删除下面这段，或者保留以防代码报错
 [[d1_databases]]
@@ -80,10 +83,12 @@ MULERUN_METERING_URL = "https://api.mulerun.com/sessions/metering" # 计费接�
 
 ### 第五步：发布上线
 code
-Bash
+```Bash
 npm run deploy
+```
 发布成功后，终端会显示你的 Worker 访问地址，例如：
 https://mulerun-metering.your-name.workers.dev
+
 ### 🔌 接口与鉴权规范 (API & Auth Specs)
 ## 1. 访问应用 (GET /)
 MuleRun 平台通过 Iframe 加载你的应用时，会传递以下参数：
@@ -121,7 +126,7 @@ JSON
 使用此脚本生成一个合法的测试链接，以便在浏览器中访问你的 Worker。
 保存为 test_gen.py 并运行：
 code
-Python
+``Python
 import hmac
 import hashlib
 import json
@@ -168,6 +173,7 @@ if __name__ == "__main__":
     print("\n=== 测试链接 (有效期 5 分钟) ===\n")
     print(generate_url())
     print("\n===============================\n")
+```
 
 ### 📂 项目结构
 code
