@@ -4,8 +4,8 @@
 [![Built with Hono](https://img.shields.io/badge/Built%20with-Hono-E33C2B?style=flat&logo=hono)](https://hono.dev/)
 [![MuleRun Creator](https://img.shields.io/badge/Creator-@DENNIS-blue)](https://mulerun.com/workspace/creator/@DENNIS)
 
-> 一个基于 Cloudflare Workers 的 **MuleRun 付费应用网关** 模板。
-> 包含完整的 **HMAC 鉴权**、**API 计费上报** 以及一个嵌入式的 **Mockup Studio** 图片处理工具。
+> 一个基于 Cloudflare Workers 的 **MuleRun iframe Agent** 模板。
+> 包含完整的 ** Iframe URL Protocol 鉴权**、**Metering APIs 计费上报** 以及一个简单的 iframe  ** Web ** 图片处理工具。
 
 ---
 
