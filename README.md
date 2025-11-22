@@ -8,32 +8,54 @@
 > 包含完整的 ** Iframe URL Protocol 鉴权**、**Metering APIs 计费上报** 以及一个简单的 iframe  ** Web ** 图片处理工具。
 
 ---
+这是一个整合了所有项目信息、部署流程、接口规范和测试脚本的完整 `README.md`。
+
+你可以直接复制下面的所有内容，保存为项目根目录下的 **`README.md`** 文件。
+
+```markdown
+# MuleRun Metering Gateway & Mockup Studio
+
+[![Deploy to Cloudflare Workers](https://img.shields.io/badge/Deploy%20to-Cloudflare%20Workers-orange?style=flat&logo=cloudflare)](https://workers.cloudflare.com/)
+[![Built with Hono](https://img.shields.io/badge/Built%20with-Hono-E33C2B?style=flat&logo=hono)](https://hono.dev/)
+[![MuleRun Creator](https://img.shields.io/badge/Creator-@DENNIS-blue)](https://mulerun.com/workspace/creator/@DENNIS)
+
+> 这是一个基于 **Cloudflare Workers** 的 MuleRun 付费应用网关模板。
+> 它演示了如何构建一个包含 **HMAC 安全鉴权**、**API 自动计费** 以及 **嵌入式 Mockup Studio UI** 的完整应用。
+
+---
 
 ## 📖 项目简介 (Introduction)
 
-本项目演示了如何开发一个安全嵌入 MuleRun 平台的 Iframe 应用。它充当了一个“中间人”网关：
+本项目旨在帮助开发者快速构建能够嵌入 [MuleRun](https://mulerun.com) 平台的付费 Iframe 应用。它充当了一个智能网关，处理以下核心任务：
 
-1.  **🛡️ 安全鉴权**：验证来自 MuleRun 的 URL 签名 (HMAC-SHA256)，防止未授权访问。
-2.  **💰 自动计费**：
-    *   **会话扣费**：用户打开应用时，自动扣除基础点数 (如 10 点)。
-    *   **动作扣费**：用户执行高级操作 (如滤镜) 时，动态调用 API 扣除额外点数 (如 20 点)。
-3.  **🖼️ 嵌入式 UI**：直接在 Worker 中渲染 HTML5 Canvas 图片编辑器，无需额外的服务器。
-4.  **🚀 无服务器**：完全运行在 Cloudflare Edge 网络上，低延迟，零维护。
+1.  **🛡️ 安全鉴权 (Security)**：
+    *   校验来自 MuleRun 的 URL 签名 (HMAC-SHA256)，确保请求未被篡改。
+    *   校验时间戳和随机数 (Nonce)，防止重放攻击。
+2.  **💰 自动计费 (Metering)**：
+    *   **会话计费**：用户打开应用时，自动扣除基础点数（如 10 点）。
+    *   **动作计费**：支持应用内的高级操作扣费（如“应用滤镜”扣除 20 点），通过后端 API 实时上报。
+3.  **🖼️ 嵌入式 UI (Mockup Studio)**：
+    *   内置一个 HTML5 Canvas 图片编辑器，支持图片上传、灰度处理和下载。
+    *   包含环境检测逻辑，非 Iframe 环境会自动跳转。
+4.  **🚀 无服务器架构**：
+    *   完全运行在 Cloudflare Edge 网络上，全球低延迟，无需购买服务器。
 
 ---
 
 ## 🛠️ 准备工作 (Prerequisites)
 
-在开始之前，请确保你拥有：
+在开始之前，请确保你已准备好：
 
-1.  **GitHub 账号** (用于存放代码)
-2.  **Cloudflare 账号** (用于部署应用)
-3.  **Node.js 环境** (建议 v18 或更高版本)
-4.  **MuleRun 开发者账号** (用于获取 API Token 和测试)
+1.  **GitHub 账号**：用于托管代码。
+2.  **Cloudflare 账号**：用于部署 Worker。
+3.  **Node.js 环境**：建议 v18 或更高版本。
+4.  **MuleRun 开发者账号**：
+    *   获取你的 `HMAC Secret`（Agent Key）。
+    *   获取你的 `API Token`（用于计费上报）。
 
 ---
 
-## 🚀 从零开始部署 (Deployment Guide)
+## 🚀 从零开始部署 (Step-by-Step Deployment)
 
 ### 第一步：下载代码
 ```bash
@@ -41,35 +63,35 @@ git clone https://github.com/suyonggui-pixel/mulerun-metering.git
 cd mulerun-metering
 npm install
 ```
+
 ### 第二步：登录 Cloudflare
 在终端运行以下命令，浏览器会弹出授权页面：
-code
-```Bash
+```bash
 npx wrangler login
 ```
-### 第三步：配置安全密钥 (Secrets)
-重要：不要将密钥明文写在代码中。请使用以下命令将它们加密上传到 Cloudflare：
-上传 HMAC 签名密钥 (用于验证 URL 合法性)：
-code
-```Bash
-npx wrangler secret put HMAC_SECRET
-```
 
-# 终端提示输入时，粘贴你的密钥 (例如: my-secure-key-2025)
-上传 MuleRun API Token (用于扣费上报)：
-code
-Bash
-npx wrangler secret put MULERUN_API_TOKEN
-# 终端提示输入时，粘贴你的 MuleRun Access Token
+### 第三步：配置安全密钥 (Secrets)
+**重要**：不要将密钥明文写在代码中。请使用以下命令将它们加密上传到 Cloudflare：
+
+1.  **上传 HMAC 签名密钥** (用于验证 URL 合法性)：
+    ```bash
+    npx wrangler secret put HMAC_SECRET
+    # 终端提示输入时，粘贴你的密钥 (例如: my-secure-key-2025)
+    ```
+
+2.  **上传 MuleRun API Token** (用于扣费上报)：
+    ```bash
+    npx wrangler secret put MULERUN_API_TOKEN
+    # 终端提示输入时，粘贴你的 MuleRun Access Token
+    ```
 
 ### 第四步：修改配置文件
-打开项目根目录下的 wrangler.toml 文件，确保内容如下：
-code
-```Toml
+打开项目根目录下的 `wrangler.toml` 文件，确保内容如下：
+
+```toml
 name = "mulerun-metering"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
-```
 
 # 如果你不需要 D1 数据库，可以删除下面这段，或者保留以防代码报错
 [[d1_databases]]
@@ -80,53 +102,65 @@ database_id = "YOUR_DATABASE_ID" # 如果没有使用 D1，这里可以随便填
 [vars]
 SESSION_COST = "10"  # 默认会话扣费点数
 MULERUN_METERING_URL = "https://api.mulerun.com/sessions/metering" # 计费接口
+```
 
 ### 第五步：发布上线
-code
-```Bash
+```bash
 npm run deploy
 ```
 发布成功后，终端会显示你的 Worker 访问地址，例如：
-https://mulerun-metering.your-name.workers.dev
+`https://mulerun-metering.your-name.workers.dev`
 
-### 🔌 接口与鉴权规范 (API & Auth Specs)
-## 1. 访问应用 (GET /)
+---
+
+## 🔌 接口与鉴权规范 (API & Auth Specs)
+
+### 1. 访问应用 (GET /)
 MuleRun 平台通过 Iframe 加载你的应用时，会传递以下参数：
-URL 示例:
-https://your-worker.dev/?userId=u123&sessionId=s456&agentId=a789&time=1700000000&nonce=n123&signature=abc...
-参数说明:
-userId: 用户 ID
-sessionId: 会话 ID
-agentId: Agent ID
-time: Unix 时间戳 (秒)
-nonce: 随机字符串 (防重放)
-signature: HMAC-SHA256 签名
-签名生成规则:
-提取除 signature 外的所有参数。
-按 Key 字母顺序排序。
-拼接成 JSON 字符串 (无空格)。例如: {"agentId":"...","nonce":"..."}
-使用 HMAC_SECRET 进行 HMAC-SHA256 加密，输出 Hex 字符串。
 
-## 2. 动作扣费接口 (POST /api/action/filter)
+**URL 示例**:
+`https://your-worker.dev/?userId=u123&sessionId=s456&agentId=a789&time=1700000000&nonce=n123&signature=abc...`
+
+**参数说明**:
+*   `userId`: 用户 ID
+*   `sessionId`: 会话 ID
+*   `agentId`: Agent ID
+*   `time`: Unix 时间戳 (秒)
+*   `nonce`: 随机字符串 (防重放)
+*   `signature`: **HMAC-SHA256 签名**
+
+**签名生成规则**:
+1.  提取除 `signature` 外的所有参数。
+2.  按 Key 字母顺序排序。
+3.  拼接成 JSON 字符串 (无空格)。例如: `{"agentId":"...","nonce":"..."}`
+4.  使用 `HMAC_SECRET` 进行 HMAC-SHA256 加密，输出 Hex 字符串。
+
+### 2. 动作扣费接口 (POST /api/action/filter)
 应用内部前端 (UI) 调用后端进行二次扣费的接口。
-请求方式: POST
-URL: /api/action/filter?userId=...&signature=... (必须携带完整的鉴权参数)
-Header: Content-Type: application/json
-Body:
-code
-JSON
-{
-  "cost": 20
-}
-响应:
-code
-JSON
-{ "success": true, "cost": 20 }
-🧪 本地测试脚本 (Python)
+
+*   **请求方式**: `POST`
+*   **URL**: `/api/action/filter?userId=...&signature=...` (必须携带完整的鉴权参数)
+*   **Header**: `Content-Type: application/json`
+*   **Body**:
+    ```json
+    {
+      "cost": 20
+    }
+    ```
+*   **响应**:
+    ```json
+    { "success": true, "cost": 20 }
+    ```
+
+---
+
+## 🧪 本地测试脚本 (Python)
+
 使用此脚本生成一个合法的测试链接，以便在浏览器中访问你的 Worker。
-保存为 test_gen.py 并运行：
-code
-``Python
+
+保存为 `test_gen.py` 并运行：
+
+```python
 import hmac
 import hashlib
 import json
@@ -175,28 +209,42 @@ if __name__ == "__main__":
     print("\n===============================\n")
 ```
 
-### 📂 项目结构
-code
-Text
+---
+
+## 📂 项目结构
+
+```text
 src/
 ├── index.ts      # 【主控】路由入口，协调鉴权、计费和UI
 ├── auth.ts       # 【鉴权】验证 HMAC 签名逻辑
 ├── metering.ts   # 【计费】封装 MuleRun API 调用逻辑
 └── ui.ts         # 【前端】Mockup Studio HTML/JS 源码
+```
 
-### ❓ 常见问题 (FAQ)
-Q: 打开链接显示 401 Invalid signature?
+---
+
+## ❓ 常见问题 (FAQ)
+
+**Q: 打开链接显示 `401 Invalid signature`?**
 A: 签名不匹配。请检查：
-Python 脚本里的 SECRET 和 wrangler secret put HMAC_SECRET 是否完全一致？
-URL 参数是否在传输过程中被转义或修改？
-Q: 显示 402 Metering Failed?
-A: 计费被拒绝。可能是：
-MULERUN_API_TOKEN 配置错误。
-MuleRun 账户余额不足。
-Q: 页面一直显示 "Verifying Environment..."?
-A: 这是正常的安全机制。为了防止应用在 MuleRun 之外被滥用，代码会检测 iframe 环境。如果在直接浏览器中打开，它会尝试跳转。如需测试，请将 URL 嵌入到一个本地 HTML 的 iframe 中。
+1.  Python 脚本里的 `SECRET` 和 `wrangler secret put HMAC_SECRET` 是否完全一致？
+2.  URL 参数是否在传输过程中被转义或修改？
 
-### 👤 开发者 (Creator)
-Developed by DENNIS (https://mulerun.com/workspace/creator/@DENNIS)
-👉 MuleRun Creator Profile
+**Q: 显示 `402 Metering Failed`?**
+A: 计费被拒绝。可能是：
+1.  `MULERUN_API_TOKEN` 配置错误。
+2.  MuleRun 账户余额不足。
+
+**Q: 页面一直显示 "Verifying Environment..."?**
+A: 这是正常的安全机制。为了防止应用在 MuleRun 之外被滥用，代码会检测 `iframe` 环境。如果在直接浏览器中打开，它会尝试跳转。如需测试，请将 URL 嵌入到一个本地 HTML 的 iframe 中。
+
+---
+
+## 👤 开发者 (Creator)
+
+Developed by **DENNIS**. (https://mulerun.com/workspace/creator/@DENNIS)
+
+👉 **[MuleRun Creator Profile](https://mulerun.com/workspace/creator/@DENNIS)**
+
 License: MIT
+```
