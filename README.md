@@ -197,6 +197,6 @@ Q: 页面一直显示 "Verifying Environment..."?
 A: 这是正常的安全机制。为了防止应用在 MuleRun 之外被滥用，代码会检测 iframe 环境。如果在直接浏览器中打开，它会尝试跳转。如需测试，请将 URL 嵌入到一个本地 HTML 的 iframe 中。
 
 ### 👤 开发者 (Creator)
-Developed by DENNIS.
+Developed by DENNIS (https://mulerun.com/workspace/creator/@DENNIS)
 👉 MuleRun Creator Profile
 License: MIT
